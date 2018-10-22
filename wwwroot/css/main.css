@@ -1,0 +1,350 @@
+﻿/* Generic body stuff, including a dark background because I like my eyes */
+body {
+	background-image: linear-gradient(135deg, #201e44, #131c26);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	font-family: sans-serif;
+	color: black;
+}
+ /* Google Maps styled buttons */
+.control {
+	background-color: white;
+	border: 0;
+	margin: 10px;
+	padding: 0;
+	position: absolute;
+	cursor: pointer;
+	border-radius: 2px;
+	height: 40px;
+	width: 40px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
+	overflow: hidden;
+	outline: currentColor none medium;
+	z-index: 5;
+	transition: all 0.75s ease-in-out;
+}
+.control svg {
+	width: 18px;
+	height: 18px;
+	margin: 11px;
+}
+
+/* Info when clicking on a plane */
+.flightInfoWindow {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.flightInfoWindow .infoTitle {
+	font-weight: 400;
+	padding-right: 4px;
+}
+.flightInfoWindow .infoPath, .flightInfoWindow .infoOptions {
+	margin-top: 16px;
+}
+.flightInfoWindow .infoOptions {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+.flightInfoWindow svg {
+	max-height: 24px;
+	cursor: pointer;
+}
+.flightInfoWindow .infoOptNotif {
+	margin-right: 16px;
+}
+
+/* Button for opening the login page and the dialog itself */
+#btnUser {
+	right: 0;
+	top: 0;
+	cursor: auto;
+}
+/* The login part of the dialog */
+#btnUserLogin, #btnUserRegister {
+	position: absolute;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	transform: scale(0, 0);
+	transition: all 0.75s ease-in-out;
+}
+/* To show login/register errors */
+#btnUserError {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	background-color: #d32f2f;
+	color: white;
+	text-align: center;
+	padding: 6px;
+	box-sizing: border-box;
+	transform: translate(0, -100%);
+	transition: all 0.5s ease-in-out;
+}
+/* The user icon */
+#btnUserIcon, #btnFilterIcon {
+	width: 40px;
+	height: 40px;
+	cursor: pointer;
+	transition: all 0.75s ease-in-out;
+}
+#btnUser td {
+	padding: 4px;
+}
+/* Custom Google inspired input styles */
+#btnUser input[type="text"], #btnUser input[type="password"], #btnUser input[type="email"], #filterPlaneLimit input[type="number"] {
+	background-color: rgba(0, 0, 0, 0);
+	color: black;
+	border: 0;
+	border-bottom: 2px solid rgba(100, 100, 100, 0.6);
+	margin-left: 16px;
+}
+/* Button container for cancel and login/register etc. */
+#btnUser .buttonContainer {
+	/* Dialogs usually have the buttons on the right */
+	margin: 8px 8px 0 0;
+	align-self: flex-end;
+}
+
+/* Button for opening the filter options */
+#btnFilter {
+	right: 0;
+	top: 52px;
+	font-family: "Roboto Light", sans-serif;
+	font-size: 0.8em;
+	box-sizing: border-box;
+	cursor: auto;
+	transition: all 0.6s ease-in-out;
+}
+#filterOptions {
+	padding: 8px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	transform: scale(0, 0);
+	transition: all 0.6s ease-in-out;
+}
+#filterOpt {
+	display: flex;
+	flex-direction: column;
+}
+#filterOpt label {
+	margin-top: 4px;
+}
+#filterOptions .button {
+	margin-top: 16px;
+}
+#filterPlaneLimit {
+	margin-top: 4px;
+}
+#filterPlaneLimit input {
+	width: 64px;
+}
+#filterPlaneLimit #filterMessage {
+	color: #d32f2f;
+	opacity: 0;
+	transition: opacity 0.2s ease-in-out;
+}
+
+/* Text/button to switch from login to register */
+#btnUser .btnUserOption {
+	padding-top: 8px;
+	font-size: 0.9em;
+	cursor: pointer;
+}
+#btnUser .btnUserOption:hover {
+	text-decoration: underline;
+}
+
+/* Search box container */
+#search {
+	position: absolute;
+	margin: 10px;
+	z-index: 5;
+	width: 80%;
+	max-width: 320px;
+}
+#searchInput {
+	background-color: white;
+	color: black;
+	border: 0;
+	border-radius: 2px;
+	padding: 8px 32px 8px 8px;
+	width: 100%;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
+	background-image: url("/img/magnify.svg");
+	background-repeat: no-repeat;
+	background-position-y: center;
+	background-position-x: 98%;
+}
+
+/* Main main being replaced by Google Maps iframe */
+#mapContainer, #map {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+}
+
+/* Generic class for button collections */
+.buttonContainer {
+	display: flex;
+	flex-direction: row;
+}
+
+/* Generig class for button style */
+.button {
+	font-weight: bold;
+	text-align: center;
+	padding: 12px;
+	margin: 4px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: all 0.15s ease-in-out;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	min-width: 100px;
+	color: #1976d2;
+}
+.button:hover {
+	background-color: rgba(207, 216, 220, 0.25);
+}
+
+/* Search navbar */
+
+.sidenavmenu a{
+	padding: 8px 8px 8px 32px;
+	text-decoration:none;
+	font-size:25px;
+	color:black;
+	display: block;
+	transition: 0.3s;
+}
+.sidenavmenu {
+	height: 100%;
+	width: 0;
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	background-color: #dadce0;
+	overflow-x: hidden;
+	transition: 0.5s;
+	padding-top: 60px;
+	opacity: 0.9;
+}
+.sidenavmenu a:hover, .offcanvas a:focus{
+	color: #f1f1f1;
+}
+.sidenavmenu .closebtn{
+	position: absolute;
+	top:0;
+	right:25px;
+	font-size:36px;
+	margin-left:50px;
+}
+@media screen and (max-height:450pz){
+	.sidenavmenu {padding-top:15px;}
+	.sidenavmenu a{font-size:18px;}
+}
+#searchInput2 {
+	background-color: white;
+	color: black;
+	border: 0;
+	border-radius: 2px;
+	padding: 8px 32px 8px 8px;
+	width: 100%;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
+	background-image: url("/img/magnify.svg");
+	background-repeat: no-repeat;
+	background-position-y: center;
+	background-position-x: 98%;
+	position: absolute;
+	z-index: 1;
+	width: 255px;
+	top: 46px;
+	right: 60px;
+}
+#selectBar {
+	background-color: white;
+	border: none;
+	border-radius: 2px;
+	top: -85px;
+	left: 4%;
+	position: relative;
+	width: 166px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
+}
+#infoBorder {
+	background-color: white;
+	height: auto;
+	width: 97%;
+	right: -5px;
+	position: relative;
+	border-radius: 2px;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 1px 4px -1px;
+}
+#searchKlick {
+	height: 40px;
+	width: 127px;
+	border-radius: 2px;
+	opacity: 1;
+	background-color: #f3f3f3;
+    position:relative;
+    top:-32px;
+}
+.table table-bordered {
+	margin-left: 20px;
+	text-decoration: underline;
+}
+
+/* Custom checkboxes */
+
+/* Hide default checkbox */
+[type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+	position: absolute;
+	left: -9999px;
+}
+/* Position the checkbox correctly */
+[type="checkbox"]:not(:checked) + label, [type="checkbox"]:checked + label {
+	position: relative;
+	padding-left: 1.95em;
+	cursor: pointer;
+}
+/* Main checkbox frame */
+[type="checkbox"]:not(:checked) + label:before, [type="checkbox"]:checked + label:before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 18px;
+	height: 18px;
+	background: #eceff1;
+	border-radius: 4px;
+}
+/* Checkbox icon */
+[type="checkbox"]:not(:checked) + label:after, [type="checkbox"]:checked + label:after {
+	content: '\2713\0020';
+	position: absolute;
+	top: 9px;
+	left: 2px;
+	font-size: 18px;
+	line-height: 0;
+	color: #4caf50;
+	transition: all .2s;
+}
+/* Hide icon when unchecked */
+[type="checkbox"]:not(:checked) + label:after {
+	opacity: 0;
+	transform: scale(0);
+}
+/* Show icon when checked */
+[type="checkbox"]:checked + label:after {
+	opacity: 1;
+	transform: scale(1);
+}

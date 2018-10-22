@@ -1,0 +1,618 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div id="mapContainer">
+	<!-- Search box -->
+	<input id="searchInput" placeholder="Enter Your FlightID" type="text">
+	<div id="search">
+		<!-- TEST  -->
+		<div id="searchKlick">
+			<span style="font-size:30px;cursor:pointer; color:black" onclick="openNavmenu()">&#9776;Search</span>
+		</div>
+		<div class="sidenavmenu" id="mySidenavmenu">
+			<a href="#" onclick="closeNav()" style="position:relative; top:-57px; right:-300px;">X</a>
+			<br>
+			<input id="searchInput2" placeholder="Search..." type="text">
+			<div id="infoBorder">
+                <table class="table table-bordered">
+                    <tbody id="DataSearching">
+                        <tr>
+                            <td>ID</td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td>RegNumber</td>
+                            <td id=""><div></div></td>
+                        </tr>
+                        <tr>
+                            <td>Model</td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td>Manufacturer</td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td>Year</td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td>Operator</td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td>In Air</td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td>FlightsCount</td>
+                            <td>text</td>
+                        </tr>
+                    </tbody>
+                </table>
+			</div>
+		</div>
+	</div>
+	<!-- User button -->
+	<div id="btnUser" class="control">
+		<div id="btnUserIcon" onclick="showLogin(true)">
+			<svg viewBox="0 0 24 24">
+				<path fill="#666666" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
+			</svg>
+		</div>
+		<div id="btnUserError"> ¯\_(ツ)_/¯ </div>
+		<div id="btnUserLogin">
+			<table>
+				<tr>
+					<td>Username</td>
+					<td><input id="loginUsername" type="text"></td>
+				</tr>
+				<tr>
+					<td>Password</td>
+					<td><input id="loginPassword" type="password"></td>
+				</tr>
+			</table>
+			<span class="btnUserOption" onclick="showRegister(true)">No account? Create one!</span>
+			<div class="buttonContainer">
+				<div class="button" onclick="showLogin(false)">Cancel</div>
+				<div class="button" onclick="login()">Login</div>
+			</div>
+		</div>
+		<div id="btnUserRegister">
+			<table>
+				<tr>
+					<td>Username</td>
+					<td><input id="registerUsername" type="text"></td>
+				</tr>
+				<tr>
+					<td>Password</td>
+					<td><input id="registerPassword" type="password"></td>
+				</tr>
+				<tr>
+					<td>Email (optional)</td>
+					<td><input id="registerMail" type="email"></td>
+				</tr>
+			</table>
+			<span class="btnUserOption" onclick="showRegister(false)">Have an account? Login!</span>
+			<div class="buttonContainer">
+				<div class="button" onclick="showLogin(false)">Cancel</div>
+				<div class="button" onclick="register()">Register</div>
+			</div>
+		</div>
+	</div>
+	<div id="btnFilter" class="control">
+		<div id="btnFilterIcon" onclick="showFilter(true)">
+			<svg viewBox="0 0 24 24">
+				<path fill="#666666" d="M6,13H18V11H6M3,6V8H21V6M10,18H14V16H10V18Z" />
+			</svg>
+		</div>
+		<div id="filterOptions">
+			<div id="filterOpt">
+				<input id="optDepDest" type="checkbox" checked>
+				<label for="optDepDest">Known departure and destination</label>
+
+				<input id="optRecent" type="checkbox" checked>
+				<label for="optRecent">Updated recently</label>
+
+				<input id="optToday" type="checkbox" checked>
+				<label for="optToday">Added today</label>
+
+				<input id="optInAir" type="checkbox" checked>
+				<label for="optInAir">In the air</label>
+			</div>
+
+			<table id="filterPlaneLimit">
+				<tr>
+					<td id="filterMessage" colspan="2">See you on the other side</td>
+				</tr>
+				<tr>
+					<td> Plane limit </td>
+					<td> <input id="optPlaneLimit" type="number" value="50" min="1" max="1000"> </td>
+				</tr>
+			</table>
+			<div class="button" onclick="showFilter(false)">Save</div>
+		</div>
+	</div>
+	<dív id="map"></dív>
+</div>
+
+<script>
+	let map, places
+	let planes = []
+
+	function loadMap()
+	{
+		map = new google.maps.Map(window.map,
+			{
+				// MDH location
+				center: {
+					lat: 59.618706,
+					lng: 16.540438
+				},
+				zoom: 8,
+				disableDefaultUI: true
+			})
+
+		places = new google.maps.places.PlacesService(map)
+
+		getFlights()
+	}
+
+	// Adds a plane and draws it on the map
+	function addPlane(plane)
+	{
+		// Create the info window for when clicking on the marker
+		const infoWindow = new google.maps.InfoWindow({
+			content: `
+						<div class="flightInfoWindow">
+							<table>
+								<tr>
+									<td class="infoTitle"> ID: </td>
+									<td> ${plane.id} </td>
+								</tr>
+								<tr>
+									<td class="infoTitle"> Added: </td>
+									<td> ${plane.firstSeen} </td>
+								</tr>
+								<tr>
+									<td class="infoTitle"> Speed: </td>
+									<td> ${plane.speedKm} km/h </td>
+								</tr>
+								<tr>
+									<td class="infoTitle"> Vertical speed: </td>
+									<td> ${plane.verticalSpeedM} m/s </td>
+								</tr>
+								<tr>
+									<td class="infoTitle"> Model: </td>
+									<td> ${plane.modelDescription} </td>
+								</tr>
+							</table>
+							<span class="infoPath"> ${plane.departureCity}, ${plane.departureCountry} -> ${plane.destinationCity}, ${plane.destinationCountry} </span>
+							<div class="infoOptions">
+								<div title="Toggle notification" class="infoOptNotif" onclick="notifyPlane('${plane.id}')">
+									<svg viewBox="0 0 24 24">
+										<path id="infoOptNotif_${plane.id}" fill="#666666" d="M16,17H7V10.5C7,8 9,6 11.5,6C14,6 16,8 16,10.5M18,16V10.5C18,7.43 15.86,4.86 13,4.18V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V4.18C7.13,4.86 5,7.43 5,10.5V16L3,18V19H20V18M11.5,22A2,2 0 0,0 13.5,20H9.5A2,2 0 0,0 11.5,22Z">
+									</svg>
+								</div>
+								<div title="Toggle bookmark" class="infoOptSave" onclick="savePlane('${plane.id}')">
+									<svg class="infoOptSave" viewBox="0 0 24 24">
+										<path id="infoOptSave_${plane.id}" fill="#666666" d="M17,18L12,15.82L7,18V5H17M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z">
+									</svg>
+								</div>
+							</div>
+						</div>
+					`
+		})
+
+		// Create the marker itself
+		const marker = new google.maps.Marker({
+			position: {
+				lat: plane.latitude,
+				lng: plane.longitude
+			},
+			map: map,
+			icon: {
+				path: "M21,16V14L13,9V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z",
+				scale: 1.5,
+				fillColor: "#ffffff",
+				fillOpacity: 1,
+				strokeColor: "#000000",
+				strokeWeight: 1,
+				rotation: plane.angle
+			},
+			// ID of the plane used to update it later
+			id: plane.id,
+			// Departure and destination ID
+			depId:  plane.departureId,
+			destId: plane.destinationId
+		})
+
+		// Attach info window to marker
+		marker.addListener("click", () => openInfoWindow(infoWindow, marker, plane))
+
+		// Add marker to planes array
+		planes.push(marker)
+	}
+
+	function openInfoWindow(infoWindow, marker, info)
+	{
+		// Open the info window itself
+		infoWindow.open(map, marker)
+
+		// Markers
+		let from, to
+
+		// Try to find airport locations
+		searchPlace(info.departure)
+			.then(response =>
+			{
+				response.id = info.departureId
+				from = addAirport(getSvgPath("airplane-takeoff"), response)
+			})
+		searchPlace(info.destination)
+			.then(response =>
+			{
+				response.id = info.destinationId
+				to = addAirport(getSvgPath("airplane-landing"), response)
+			})
+
+		// When the info window is closed, remove the icons
+		infoWindow.addListener("closeclick", () =>
+		{
+			if (from) {
+				from.setMap(null)
+			}
+
+			if (to) {
+				to.setMap(null)
+			}
+		})
+	}
+
+	function addAirport(path, info)
+	{
+		const infoWindow = new google.maps.InfoWindow({
+			content:
+				`
+					<div class="flightInfoWindow">
+						<span> ${info.id}: ${info.name} </span>
+						<div title="Toggle bookmark" class="infoOptSave" onclick="saveAirport('${info.id}')">
+							<svg viewBox="0 0 24 24">
+								<path id="infoOptAirport_${info.id}" fill="#666666" d="${getSvgPath("bookmark-outline")}">
+							</svg>
+						</div>
+					</div>
+				`
+		})
+
+		const marker = new google.maps.Marker({
+			position: {
+				lat: info.lat,
+				lng: info.lng
+			},
+			map: map,
+			icon: {
+				path: path,
+				scale: 1.4,
+				fillColor: "#ffffff",
+				fillOpacity: 0.9,
+				strokeColor: "#000000",
+				strokeWeight: 0.9,
+			}
+		})
+
+		marker.addListener("click", () => infoWindow.open(map, marker))
+
+		return marker
+	}
+
+	// Removes all planes known
+	function removePlanes()
+	{
+		// Remove all planes from the map
+		planes.forEach(plane => plane.setMap(null))
+		// Empty the planes array
+		planes.length = 0
+	}
+
+	// Shows or hides the login dialog
+	function showLogin(show)
+	{
+		// Default back to login
+		showRegister(false)
+
+		// Hide error if any
+		window.btnUserError.style.transform = "translate(0, -100%)"
+
+		window.btnUserIcon.style.opacity = show ? 0 : 1
+		window.btnUserLogin.style.transform = show ? "scale(1, 1)" : "scale(0, 0)"
+
+		const style = window.btnUser.style
+
+		style.top    = show ? "50%"   : "0"
+		style.right  = show ? "50%"   : "0"
+		style.width  = show ? "380px" : "40px"
+		style.height = show ? "200px" : "40px"
+		style.transform    = show ? "translate(50%, -50%)" : "translate(0, 0)"
+		style.borderRadius = show ? "4px" : "2px"
+	}
+
+	// Shows or hides the filter options
+	function showFilter(show)
+	{
+		window.btnFilterIcon.style.opacity   = show ? 0 : 1
+		window.filterOptions.style.transform = show ? "scale(1, 1)" : "scale(0, 0)"
+
+		const style = window.btnFilter.style
+
+		style.width  = show ? "256px" : "40px"
+		style.height = show ? "254px" : "40px"
+		style.borderRadius = show ? "4px" : "2px"
+
+		// If we're closing filter options, apply changes
+		if (!show) {
+			overwriteFlights()
+		}
+	}
+
+	function register()
+	{
+		// Get entered username, password and email
+		const username = window.registerUsername.value
+		const password = window.registerPassword.value
+		const email    = window.registerMail.value
+
+		// Check for require parameters
+		if (!username) {
+			showLoginError("Username required")
+			return
+		}
+
+		if (!password) {
+			showLoginError("Password required")
+			return
+		}
+
+		// Try to register
+		fetch(`/user/register?username=${username}&password=${password}&email=${email}`)
+			.then(response => response.json())
+			.then(json =>
+			{
+				// If error, assume username is taken
+				if (json.error) {
+					showLoginError("Username already taken")
+				} else {
+					showLoginStatus("Account created!")
+				}
+			})
+	}
+
+	function login()
+	{
+		// Get entered username and password
+		const username = window.loginUsername.value
+		const password = window.loginPassword.value
+
+		// Check for required parameters
+		if (!username) {
+			showLoginError("Username required")
+			return
+		}
+
+		if (!password) {
+			showLoginError("Password required")
+			return
+		}
+
+		// Try to login
+		fetch(`/user/login?username=${username}&password=${password}`)
+			.then(response => response.json())
+			.then(json => {
+				// If error, assume username is taken
+				if (json.error) {
+					showLoginError("Incorrect username or password")
+				} else {
+					showLoginStatus("Login successful!")
+				}
+			})
+	}
+
+	// Shows the register or login dialog
+	function showRegister(show)
+	{
+		window.btnUserLogin.style.transform    = show ? "scale(0, 0)" : "scale(1, 1)"
+		window.btnUserRegister.style.transform = show ? "scale(1, 1)" : "scale(0, 0)"
+
+		window.btnUser.style.height = show ? "240px" : "200px"
+	}
+
+	// Show error to login/register dialog
+	const showLoginError = message => showLoginMessage(message, "#d32f2f")
+
+	// Like showLoginError, but shows as a 'success' message
+	const showLoginStatus = message => showLoginMessage(message, "#2e7d32")
+
+	// Generic function to show login message
+	function showLoginMessage(message, color)
+	{
+		window.btnUserError.textContent = message
+		window.btnUserError.style.transform = "translate(0, 0)"
+		window.btnUserError.style.backgroundColor = color
+
+		// Automatically hide error after 3 seconds
+		setTimeout(() => {
+			window.btnUserError.style.transform = "translate(0, -100%)"
+		}, 3000)
+	}
+
+	// Toggle plane notification
+	function notifyPlane(id)
+	{
+		// For now, just change the icon
+		document.getElementById(`infoOptNotif_${id}`).setAttribute("d", getSvgPath("bell"))
+	}
+
+	// Toggle plane bookmark
+	function savePlane(id)
+	{
+		// For now, just change the icon
+		document.getElementById(`infoOptSave_${id}`).setAttribute("d", getSvgPath("bookmark"))
+	}
+
+	// Toggle airport bookmark
+	function saveAirport(id)
+	{
+		// For now, just change the icon
+		document.getElementById(`infoOptAirport_${id}`).setAttribute("d", getSvgPath("bookmark"))
+	}
+
+	// Neater way get svg paths
+	function getSvgPath(icon)
+	{
+		switch (icon)
+		{
+			case "bell-outline":     return "M16,17H7V10.5C7,8 9,6 11.5,6C14,6 16,8 16,10.5M18,16V10.5C18,7.43 15.86,4.86 13,4.18V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V4.18C7.13,4.86 5,7.43 5,10.5V16L3,18V19H20V18M11.5,22A2,2 0 0,0 13.5,20H9.5A2,2 0 0,0 11.5,22Z"
+			case "bell":             return "M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21"
+			case "bookmark-outline": return "M17,18L12,15.82L7,18V5H17M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"
+			case "bookmark":         return "M17,3H7A2,2 0 0,0 5,5V21L12,18L19,21V5C19,3.89 18.1,3 17,3Z"
+			case "airplane-takeoff": return "M2.5,19H21.5V21H2.5V19M22.07,9.64C21.86,8.84 21.03,8.36 20.23,8.58L14.92,10L8,3.57L6.09,4.08L10.23,11.25L5.26,12.58L3.29,11.04L1.84,11.43L3.66,14.59L4.43,15.92L6.03,15.5L11.34,14.07L15.69,12.91L21,11.5C21.81,11.26 22.28,10.44 22.07,9.64Z"
+			case "airplane-landing": return "M2.5,19H21.5V21H2.5V19M9.68,13.27L14.03,14.43L19.34,15.85C20.14,16.06 20.96,15.59 21.18,14.79C21.39,14 20.92,13.17 20.12,12.95L14.81,11.53L12.05,2.5L10.12,2V10.28L5.15,8.95L4.22,6.63L2.77,6.24V11.41L4.37,11.84L9.68,13.27Z"
+			case "arrow-up":         return "M2,20V22H22V20H13V5.83L18.5,11.33L19.92,9.92L12,2L4.08,9.92L5.5,11.33L11,5.83V20H2Z"
+			case "arrow-down":       return "M19.92,12.08L12,20L4.08,12.08L5.5,10.67L11,16.17V2H13V16.17L18.5,10.66L19.92,12.08M12,20H2V22H22V20H12Z"
+			default: return null
+		}
+	}
+
+	function searchPlace(query)
+	{
+		const request = {
+			query: query,
+			fields: ["formatted_address", "geometry"]
+		}
+
+		return new Promise((resolve, reject) =>
+		{
+			places.findPlaceFromQuery(request, (results, status) =>
+			{
+				if (status !== google.maps.places.PlacesServiceStatus.OK) {
+					reject("No results found")
+				} else {
+					resolve({
+						name: results[0].formatted_address,
+						lat: results[0].geometry.location.lat(),
+						lng: results[0].geometry.location.lng()
+					})
+				}
+			})
+		})
+	}
+
+	function searchPlaceDebug(query)
+	{
+		searchPlace(query)
+			.then(result => console.log(result))
+	}
+
+	// If we set the plane limit to something over 100, well, good luck
+	window.optPlaneLimit.addEventListener("input", () => window.filterMessage.style.opacity = window.optPlaneLimit.value >= 100 ? 1 : 0)
+
+	// Hide any dialogs when clicking/dragging the map
+	window.map.addEventListener("mousedown", () => {
+		// Hide login dialog
+		showLogin(false)
+	})
+</script>
+
+<script>
+	// Gets all flights and keeps them updated
+	function getFlights()
+	{
+		// First, fill the map with initial planes
+		overwriteFlights()
+
+		// Every 5 seconds, update them
+		setInterval(() =>
+		{
+			// Fetch new planes
+			fetch(getFlightUrl())
+				.then(response => response.json())
+				.then(json =>
+				{
+					// Loop through all the new planes
+					json.forEach(item =>
+					{
+						// Loop through all known planes to try and find a match to update
+						planes.some(plane =>
+						{
+							if (plane.id === item.id) {
+								// If it was found, update and return
+								plane.setPosition({
+									lat: item.latitude,
+									lng: item.longitude
+								})
+								return true
+							}
+							// If not, continue searching
+							return false
+						})
+					})
+				})
+		}, 5000)
+	}
+
+	// Overwrite all current planes, used during fist visit and when changing filters
+	function overwriteFlights()
+	{
+		// Remove all existing planes
+		removePlanes()
+
+		// Fetch new flights and fill the map
+		fetch(getFlightUrl())
+			.then(response => response.json())
+			.then(json => json.forEach(item => addPlane(item)))
+	}
+
+	// Gets all filter options, the url and stuffs
+	function getFlightUrl()
+	{
+		// Get filter options
+		const opt = getFilterOptions()
+
+		// Return parsed url
+		return `/api/getFlights?limit=${opt.limit}&depDest=${opt.depDest}&recent=${opt.recent}&today=${opt.today}&inAir=${opt.inAir}`
+	}
+
+	// Get filter options
+	function getFilterOptions()
+	{
+		return {
+			depDest: window.optDepDest.checked,
+			recent:  window.optRecent.checked,
+			today:   window.optToday.checked,
+			inAir:   window.optInAir.checked,
+			limit:   window.optPlaneLimit.value
+		}
+	}
+</script>
+
+<script>
+	function openNavmenu() {
+		document.getElementById("mySidenavmenu").style.width = "370px";
+		document.getElementById("searchKlick").style.visibility = "hidden";
+	}
+	function closeNav() {
+		document.getElementById("mySidenavmenu").style.width = "0";
+		document.getElementById("searchKlick").style.visibility = "visible";
+	}
+	function speedStatus() {
+		if (Grounded == true) {
+			document.getElementById("statusLabel ").text = "On Ground";
+		}
+		else {
+			document.getElementById("statusLabel").text = "In Air";
+		}
+	}
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAkpoZuz2_DLFR81ISUwOcIXcLj_4097gY&libraries=places&callback=loadMap" async defer></script>
